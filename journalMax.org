@@ -215,7 +215,7 @@ FILENAME="data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12"
 perl scripts/csv_quicksort_extractor2.pl < "$FILENAME.txt" > "${FILENAME}_wide.csv"
 #+end_src
 
-#+begin_src R :results output :session *R* :exports both
+#+begin_src R :results output graphics :file "toto.png" :exports both :width 600 :height 400 :session *R* 
 library("ggplot2")
 df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12_wide.csv",header=T);
 ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
@@ -243,3 +243,14 @@ ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
 
 #+RESULTS:
 
+* Retours sur le TP
+retester perf sur des valeurs de tableau plus grande
+Le mélange de la boucle reste cyclique donc si les test ont des
+influences sur les autre ça peut faire un biais. Il aurait mieux valu
+faire de l'aléatoire.
+Idéalement faire un fichier csv avec pour chaque experience(ligne) des
+parametres (taille tableau, options de compilations....). Ce fichier
+csv va etre consomé par un programme qui fera toutes les expériences
+et créer un fichier par expérience. Ensuite un autre programme
+rassemble ces infos dans un fichier. Puis avec un outil d'analyse (R
+de préférence) on fait les résultats.
