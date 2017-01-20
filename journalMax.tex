@@ -1,4 +1,4 @@
-% Created 2017-01-19 jeu. 15:02
+% Created 2017-01-20 ven. 08:29
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -96,7 +96,7 @@ Partition & d'échange: & 7996 & 0 & 7996 &  & \\
 \end{center}
 
 \section{Test 1}
-\label{sec:orgheadline9}
+\label{sec:orgheadline10}
 Réexecution du code sur ma machine 
 
 \begin{verbatim}
@@ -120,8 +120,38 @@ différents coeurs!
 \label{sec:orgheadline8}
 C'est pas mieux \ldots{}
 
+\subsection{Vérifions que le programme utilise plusieurs coeurs}
+\label{sec:orgheadline9}
+
+\begin{verbatim}
+perf stat -e cpu-cycles -e instructions -e cache-references -e cache-misses -e LLC-loads -e LLC-stores --cpu=0-3 --per-core ./src/parallelQuicksort
+\end{verbatim}
+
+Sequential quicksort took: 0.281554 sec.
+Parallel quicksort took: 0.448588 sec.
+Built-in quicksort took: 0.272621 sec.
+
+Performance counter stats for 'CPU(s) 0-3':
+
+S0-C0           2      3 118 920 870      cpu-cycles                                                    (66,70\%)
+S0-C0           2      2 941 573 615      instructions                                                  (83,41\%)
+S0-C0           2          8 480 420      cache-references                                              (83,40\%)
+S0-C0           2          2 811 502      cache-misses                                                  (83,40\%)
+S0-C0           2          4 283 818      LLC-loads                                                     (83,40\%)
+S0-C0           2          1 822 019      LLC-stores                                                    (83,11\%)
+S0-C1           2      1 707 679 255      cpu-cycles                                                    (66,70\%)
+S0-C1           2        952 446 235      instructions                                                  (83,41\%)
+S0-C1           2          8 421 277      cache-references                                              (83,40\%)
+S0-C1           2          3 175 977      cache-misses                                                  (83,40\%)
+S0-C1           2          3 255 670      LLC-loads                                                     (83,40\%)
+S0-C1           2          1 912 330      LLC-stores                                                    (83,11\%)
+
+1,036287854 seconds time elapsed
+
+Ca a l'air de tourner sur deux des 4 cpu.
+
 \section{Test 2}
-\label{sec:orgheadline10}
+\label{sec:orgheadline11}
 Nous allons garder les mêmes valeurs en mélangeant l'ordre d'execution
 
 
@@ -153,19 +183,34 @@ echo "
 echo [[file:${FILENAME}_wide.png]]
 \end{verbatim}
 
+\includegraphics[width=.9\linewidth]{data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:57_wide.png}
+
+Oups\ldots{}
+
+\begin{verbatim}
+library("ggplot2")
+df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:57_wide.csv",header=T);
+ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
+  geom_point(data=df, aes(x=Size, y=Par, color="red")) + 
+  geom_point(data=df, aes(x=Size, y=Libc));
+\end{verbatim}
+
+Petit test en R, mais je ne maitrise pas du tout ggplot \ldots{} Du coup
+difficile d'analyser.
+
 \section{Test 3}
-\label{sec:orgheadline11}
-Dans ce premier test nous allons affiner la courbe en faisant des tests
+\label{sec:orgheadline13}
+Dans ce troisieme test nous allons affiner la courbe en faisant des tests
 sur des tableaux de taille 10, 50, 100, 500, 1000, 5000, 10000, 50000,
 100000, 500000 et 1000000.
 
 Nous allons effectuer le test 10 fois pour chaque valeur.
 
-\begin{verbatim}
-::::::::::::::
-scripts/run_benchmarking.sh
-::::::::::::::
 
+\begin{verbatim}
+scripts/run_benchmarking.sh
+\end{verbatim}
+\begin{verbatim}
 OUTPUT_DIRECTORY=data/`hostname`_`date +%F`
 mkdir -p $OUTPUT_DIRECTORY
 OUTPUT_FILE=$OUTPUT_DIRECTORY/measurements_`date +%R`.txt
@@ -173,27 +218,41 @@ OUTPUT_FILE=$OUTPUT_DIRECTORY/measurements_`date +%R`.txt
 touch $OUTPUT_FILE
 for i in 10 50 100 500 1000 5000 10000 50000 100000 500000 1000000; do
     for rep in `seq 1 10`; do
-        echo "Size: $i" >> $OUTPUT_FILE;
-        ./src/parallelQuicksort $i >> $OUTPUT_FILE;
-    done ;
-done
+        echo "Siz
 \end{verbatim}
 
-Pour transformer le fichier texte en fichier on utilise le script
+
+
+Pour trasformer le fichier texte en fichier on utilise le script
 fourni et la commande :
 
 \begin{verbatim}
-FILENAME="data/chevamax-Satellite-Pro-R50-B_2017-01-18/measurements_19:40"
+FILENAME="data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12"
 perl scripts/csv_quicksort_extractor2.pl < "$FILENAME.txt" > "${FILENAME}_wide.csv"
-echo "
-  set terminal png size 600,400 
-  set output '${FILENAME}_wide.png'
-  set datafile separator ','
-  set key autotitle columnhead
-  plot '${FILENAME}_wide.csv' using 1:2 with linespoints, '' using 1:3 with linespoints, '' using 1:4 with linespoints
-" | gnuplot
-echo [[file:${FILENAME}_wide.png]]
 \end{verbatim}
 
-\includegraphics[width=.9\linewidth]{data/chevamax-Satellite-Pro-R50-B_2017-01-18/measurements_19:40_wide.png}
+\begin{verbatim}
+library("ggplot2")
+df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12_wide.csv",header=T);
+ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
+  geom_point(data=df, aes(x=Size, y=Par, color="red")) + 
+  geom_point(data=df, aes(x=Size, y=Libc));
+\end{verbatim}
+
+
+\subsection{Compilons en -O3}
+\label{sec:orgheadline12}
+
+\begin{verbatim}
+FILENAME="data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:24"
+perl scripts/csv_quicksort_extractor2.pl < "$FILENAME.txt" > "${FILENAME}_wide.csv"
+\end{verbatim}
+
+\begin{verbatim}
+library("ggplot2")
+df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12_wide.csv",header=T);
+ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
+  geom_point(data=df, aes(x=Size, y=Par, color="red")) + 
+  geom_point(data=df, aes(x=Size, y=Libc));
+\end{verbatim}
 \end{document}

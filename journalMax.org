@@ -75,7 +75,7 @@ echo [[file:${FILENAME}_wide.png]]
 #+end_src
 
 #+RESULTS:
-: [[file:data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:23_wide.png]]
+file:data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:23_wide.png
 
 ** Analyse des résultats
 On voit ici que les résultats sont complétement différents (et même
@@ -98,7 +98,7 @@ echo [[file:${FILENAME}_wide.png]]
 #+end_src
 
 #+RESULTS:
-: [[file:data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:39_wide.png]]
+[[file:data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:39_wide.png]]
 
 ** Analyse
 C'est pas mieux ...
@@ -191,11 +191,10 @@ sur des tableaux de taille 10, 50, 100, 500, 1000, 5000, 10000, 50000,
 Nous allons effectuer le test 10 fois pour chaque valeur.
 
 
-#+begin_example
-::::::::::::::
+#+begin_src sh :results output :exports both
 scripts/run_benchmarking.sh
-::::::::::::::
-
+#+end_src
+#+BEGIN_EXAMPLE
 OUTPUT_DIRECTORY=data/`hostname`_`date +%F`
 mkdir -p $OUTPUT_DIRECTORY
 OUTPUT_FILE=$OUTPUT_DIRECTORY/measurements_`date +%R`.txt
@@ -203,7 +202,11 @@ OUTPUT_FILE=$OUTPUT_DIRECTORY/measurements_`date +%R`.txt
 touch $OUTPUT_FILE
 for i in 10 50 100 500 1000 5000 10000 50000 100000 500000 1000000; do
     for rep in `seq 1 10`; do
-        echo "Size: $i" >> $OUTPUT_FILE
+        echo "Siz
+#+END_EXAMPLE
+
+
+
 Pour trasformer le fichier texte en fichier on utilise le script
 fourni et la commande :
 
