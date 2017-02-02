@@ -170,7 +170,7 @@ echo [[file:${FILENAME}_wide.png]]
 
 Oups...
 
-#+begin_src R :results output :session *R* :exports both
+#+begin_src R :results output graphics :file "tata.png" :exports both :width 600 :height 400 :session *R* 
 library("ggplot2")
 df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_14:57_wide.csv",header=T);
 ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
@@ -179,6 +179,7 @@ ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
 #+end_src
 
 #+RESULTS:
+[[file:tata.png]]
 
 Petit test en R, mais je ne maitrise pas du tout ggplot ... Du coup
 difficile d'analyser.
@@ -218,12 +219,13 @@ perl scripts/csv_quicksort_extractor2.pl < "$FILENAME.txt" > "${FILENAME}_wide.c
 #+begin_src R :results output graphics :file "toto.png" :exports both :width 600 :height 400 :session *R* 
 library("ggplot2")
 df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12_wide.csv",header=T);
-ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
-  geom_point(data=df, aes(x=Size, y=Par, color="red")) + 
-  geom_point(data=df, aes(x=Size, y=Libc));
+ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="Seq")) + geom_line(data=df, aes(x=Size, y=Seq, color="Seq")) +
+  geom_point(data=df, aes(x=Size, y=Par, color="Par")) + geom_smooth(data=df, aes(x=Size, y=Par, color="Par"), method="lm", formula=y~x*log(x) +
+  geom_point(data=df, aes(x=Size, y=Libc, color="Libc")) + geom_line(data=df, aes(x=Size, y=Libc, color="Libc"));
 #+end_src
 
 #+RESULTS:
+[[file:toto.png]]
 
 
 ** Compilons en -O3
@@ -233,7 +235,7 @@ FILENAME="data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:24"
 perl scripts/csv_quicksort_extractor2.pl < "$FILENAME.txt" > "${FILENAME}_wide.csv"
 #+end_src
 
-#+begin_src R :results output :session *R* :exports both
+#+begin_src R :results output graphics :file "titi.png" :exports both :width 600 :height 400 :session *R*
 library("ggplot2")
 df <- read.csv("data/chevamax-Satellite-Pro-R50-B_2017-01-19/measurements_16:12_wide.csv",header=T);
 ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
@@ -242,6 +244,9 @@ ggplot()+ geom_point(data=df, aes(x=Size, y=Seq, color="green"))+
 #+end_src
 
 #+RESULTS:
+[[file:titi.png]]
+
+
 
 * Retours sur le TP
 retester perf sur des valeurs de tableau plus grande
@@ -254,3 +259,51 @@ csv va etre consomé par un programme qui fera toutes les expériences
 et créer un fichier par expérience. Ensuite un autre programme
 rassemble ces infos dans un fichier. Puis avec un outil d'analyse (R
 de préférence) on fait les résultats.
+
+La variabilité des résultats peut s'expliquer par la commutation, le
+choix du pivot, et la taille des morceaux attribué aux threads
+(déséquillibrage de charge).
+
+Faire un tableau des experiences avec :
+- liste des tailles
+- liste des compilations
+- liste des quicksort
+
+Puis appeler aléatoirement
+
+Reformer les données 
+
+Analyser les données
+
+* Nouvelle experimentation
+J'ai créé le fichier main.c dans le dossier sripts. Il permet de
+randomiser les tailles et donne directement un fichier csv. Cependant
+il ne randomise pas les différentes optimisation (de O0 à O3).
+
+** Premiers résultats 
+[[file:Rplot01.png]]
+On voit sur cette image qu'il y a une grosse zone d'insertitude pour
+la zone autour de 25000000. 
+
+Nous allons donc relancer le programme avec une valeur à cet endroit.
+
+[[file:Rplot02.png]]
+
+On voit sur ce graphique que la zone d'incertitude s'est réduite mais
+est toujours importante entre 10000000 et 20000000. Mais on est
+presque sûr que c'est entre ces valeurs que l'algorithme est plus
+efficace sur ma machine.
+On remarque également que l'optimisation à la compilation joue un role
+significatif sur les performances des trois algorithmes.
+
+[[file:Rplot03.png]]
+
+Sur ce jeux de test, on obtient enfin ce qu'on voulait.
+Il faudrait maintenant pouvoir superposer les trois courbes pour
+avoir un résultat plus flagrant. Mais en analysant les chiffres, on
+remarque que c'est autours de 7 500 000 éléments que le parallèlisme
+devient avantageux. Ensuite plus l'écars est grand plus le
+parallèlisme est avantageux.
+
+Il faudrait pour améliorer les résultats, distinguer les optimisations
+pour pouvoir les comparer une à une.
