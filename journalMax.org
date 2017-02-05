@@ -307,3 +307,31 @@ parallèlisme est avantageux.
 
 Il faudrait pour améliorer les résultats, distinguer les optimisations
 pour pouvoir les comparer une à une.
+
+** Tris des données
+En triant les données grâce à la fonction melt, nous pouvons enfin
+exploiter pleinnement les fonctionnalités de ggplot.
+
+[[file:Rplot05.png]]
+
+Sur ces graphique j'ai fixé l'axe des y afin qu'on puisse plus
+facilement comparer les résultats. On voit que les optimisation en O1
+O2 et O3 se distinguent toutes de O0, mais sont très proches entre
+elles (on ne gagne presque rien en O1 et O3). On voit également que
+l'algorithme de la Libc à l'air d'être rapidement distancé par les
+deux autres.
+
+Dans le graphique suivant nous allons nous superposer les resultats de
+chaques programmes en fonction de l'optimisation.
+
+[[file:Rplot04.png]]
+
+On voit ici la suprématie du parallèle en O0 (pour des tableaux de
+grande taille). En O3 cependant, l'algorithme Par ne se distingue
+presque pas du Seq. Il faudrait avoir des tableaux de plus grandes
+tailles.
+
+On peut donc conclure que l'algorithme parallèle n'est pas plus
+performant sur ma machine (aux vues des capacités de calculs de ma
+machine) que le sequentiel en O3. On peut cependant se demander si
+l'O3 sur le séquentiel ne tente pas de paralléliser les calculs.
